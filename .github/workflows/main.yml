@@ -1,0 +1,36 @@
+name: 🔥 Build APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build APK with Buildozer
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+      
+      - name: 🏗️ Build with Buildozer Action
+        uses: ArtemSBulgakov/buildozer-action@v1
+        id: buildozer
+        with:
+          workdir: .
+          buildozer_version: stable
+      
+      - name: 📦 Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: CryptoScanner-APK
+          path: ${{ steps.buildozer.outputs.filename }}
+          if-no-files-found: error
+      
+      - name: 📋 Upload Build Logs (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs
+          path: .buildozer/
